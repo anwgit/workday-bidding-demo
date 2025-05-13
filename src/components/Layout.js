@@ -1,5 +1,5 @@
-// src/components/Layout.js
 import React, { useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import {
   Box,
   CssBaseline,
@@ -37,6 +37,30 @@ export default function Layout({ title, children }) {
   const [vacOpen, setVacOpen] = useState(false);
   const displayTitle = title || (children?.type?.name ?? 'Application');
 
+  const primaryNav = [
+    { text: 'Home', icon: <HomeIcon />, path: '/' },
+    { text: 'Shift Board', icon: <DashboardIcon />, path: '/shift-board' },
+    { text: 'Manage Bids', icon: <GavelIcon />, path: '/manage' },
+    { text: 'Employees', icon: <GroupIcon />, path: '/employees' },
+    { text: 'Staffing Levels', icon: <LayersIcon />, path: '/staffing-levels' },
+    { text: 'Manage Rule Sets', icon: <SettingsIcon />, path: '/rule-sets' },
+    { text: 'View Rule Sets', icon: <ListAltIcon />, path: '/rule-sets-view' }
+  ];
+
+  const otSubmenu = [
+    { text: 'OT Dashboard',   icon: <ListIcon />,   path: '/ot-dashboard' },
+    { text: 'Bid Modal Demo', icon: <ListIcon />,   path: '/ot-bidding-process' },
+    { text: 'Admin Console',  icon: <ListIcon />,   path: '/ot-admin-console' }
+  ];
+
+  const vacSubmenu = [
+    { text: 'Vacation Bidding',       icon: <CalendarTodayIcon />, path: '/employee-vacation-bidding' },
+    { text: 'Bucket Definitions',     icon: <CalendarTodayIcon />, path: '/vacations-buckets' },
+    { text: 'Preference Submissions', icon: <AssignmentIcon />,     path: '/vacation-preference-submission' },
+    { text: 'Award & Override',       icon: <SwapHorizIcon />,      path: '/vacation-award-override' },
+    { text: 'Window Config',          icon: <CalendarTodayIcon />, path: '/vacation-window-config' }
+  ];
+
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -67,19 +91,11 @@ export default function Layout({ title, children }) {
         <Box sx={{ overflow: 'auto' }}>
           <List>
             {/* Primary navigation */}
-            {[ 
-              { text: 'Home', icon: <HomeIcon />, path: '/' },
-              { text: 'Shift Board', icon: <DashboardIcon />, path: '/shift-board' },
-              { text: 'Manage Bids', icon: <GavelIcon />, path: '/manage' },
-              { text: 'Employees', icon: <GroupIcon />, path: '/employees' },
-              { text: 'Staffing Levels', icon: <LayersIcon />, path: '/staffing-levels' },
-              { text: 'Manage Rule Sets', icon: <SettingsIcon />, path: '/rule-sets' },
-              { text: 'View Rule Sets', icon: <ListAltIcon />, path: '/rule-sets-view' }
-            ].map(item => (
+            {primaryNav.map(item => (
               <ListItemButton
                 key={item.text}
-                component="a"
-                href={item.path}
+                component={RouterLink}
+                to={item.path}
                 sx={{ '&:hover': { background: '#F0F7FF' } }}
               >
                 <ListItemIcon>{item.icon}</ListItemIcon>
@@ -95,15 +111,11 @@ export default function Layout({ title, children }) {
             </ListItemButton>
             <Collapse in={ovtOpen} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
-                {[
-                  { text: 'OT Dashboard',       icon: <ListIcon />,        path: '/ot-dashboard' },
-                  { text: 'Bid Modal Demo',     icon: <ListIcon />,        path: '/ot-bidding-process' },
-                  { text: 'Admin Console',      icon: <ListIcon />,        path: '/ot-admin-console' }
-                ].map(it => (
+                {otSubmenu.map(it => (
                   <ListItemButton
                     key={it.text}
-                    component="a"
-                    href={it.path}
+                    component={RouterLink}
+                    to={it.path}
                     sx={{ pl: 4, '&:hover': { background: '#F0F7FF' } }}
                   >
                     <ListItemIcon>{it.icon}</ListItemIcon>
@@ -121,17 +133,11 @@ export default function Layout({ title, children }) {
             </ListItemButton>
             <Collapse in={vacOpen} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
-                {[
-                  { text: 'Vacation Bidding',        icon: <CalendarTodayIcon />, path: '/employee-vacation-bidding' },
-                  { text: 'Bucket Definitions',      icon: <CalendarTodayIcon />, path: '/vacations-buckets' },
-                  { text: 'Preference Submissions',  icon: <AssignmentIcon />,     path: '/vacation-preference-submission' },
-                  { text: 'Award & Override',        icon: <SwapHorizIcon />,      path: '/vacation-award-override' },
-                  { text: 'Window Config',           icon: <CalendarTodayIcon />, path: '/vacation-window-config' }
-                ].map(it => (
+                {vacSubmenu.map(it => (
                   <ListItemButton
                     key={it.text}
-                    component="a"
-                    href={it.path}
+                    component={RouterLink}
+                    to={it.path}
                     sx={{ pl: 4, '&:hover': { background: '#F0F7FF' } }}
                   >
                     <ListItemIcon>{it.icon}</ListItemIcon>
