@@ -2,23 +2,42 @@ import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { Box, Grid, Typography } from '@mui/material';
 import OvertimeEventCard from '../components/OvertimeEventCard';
-import OvertimeBidModal  from '../components/OvertimeBidModal';
+import OvertimeBidModal from '../components/OvertimeBidModal';
 
 export default function OvertimeDashboard() {
-  const [otEvents, setOtEvents]           = useState([]);
-  const [selectedEventId, setSelectedId]  = useState(null);
-  const [optInStatus, setOptInStatus]     = useState({});
+  const [otEvents, setOtEvents] = useState([]);
+  const [selectedEventId, setSelectedId] = useState(null);
+  const [optInStatus, setOptInStatus] = useState({});
 
+  // Replace API call with hardcoded demo data
   useEffect(() => {
-    fetch('/api/ot-events')
-      .then(r => r.json())
-      .then(setOtEvents);
+    setOtEvents([
+      {
+        id: 1,
+        date: '2025-05-20',
+        time: '8:00 AM – 4:00 PM',
+        reason: 'Staff Shortage',
+        status: 'Open'
+      },
+      {
+        id: 2,
+        date: '2025-05-22',
+        time: '4:00 PM – 12:00 AM',
+        reason: 'Event Coverage',
+        status: 'Open'
+      },
+      {
+        id: 3,
+        date: '2025-05-25',
+        time: '12:00 AM – 8:00 AM',
+        reason: 'Emergency Shift',
+        status: 'Closed'
+      }
+    ]);
   }, []);
 
   const toggleOptInOT = (eventId) => {
-    // toggle local & POST to API
     setOptInStatus(s => ({ ...s, [eventId]: !s[eventId] }));
-    fetch(`/api/ot-events/${eventId}/opt-in`, { method: 'POST' });
   };
 
   const selectOTEvent = (eventId) => {
@@ -30,6 +49,7 @@ export default function OvertimeDashboard() {
       <Box sx={{ mb: 3 }}>
         <Typography variant="h5">Available OT Events</Typography>
       </Box>
+
       <Grid container spacing={2}>
         {otEvents.map(evt => (
           <Grid item xs={12} sm={6} md={4} key={evt.id}>
@@ -56,5 +76,5 @@ export default function OvertimeDashboard() {
         />
       )}
     </Layout>
-);
+  );
 }
