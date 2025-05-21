@@ -32,26 +32,36 @@ export default function EmployeeShiftPreferences() {
     async function loadAll() {
       try {
         const PUB = process.env.PUBLIC_URL;
-        const [shiftsCsv, bidsCsv] = await Promise.all([
-          fetch(`${PUB}/Employee_Shifts.csv`).then(r => r.text()),
-          fetch(`${PUB}/employee_bids.csv`).then(r => r.text())
-        ]);
+        const shiftsText = await fetch(`${PUB}/Employee_Shifts.csv`).then(r => {
+          if (!r.ok) throw new Error(`Unable to load Employee_Shifts.csv (${r.status})`);
+          return r.text();
+        });
+        const bidsText = await fetch(`${PUB}/employee_bids.csv`).then(r => {
+          if (!r.ok) throw new Error(`Unable to load employee_bids.csv (${r.status})`);
+          return r.text();
+        });
 
-        const parsedShifts = Papa.parse(shiftsCsv, { header: true })
-          .data.filter(r => r['Shift ID']);
-        const parsedBids = Papa.parse(bidsCsv, { header: true })
-          .data.filter(r => r.EmployeeID);
+        const parsedShifts = Papa.parse(shiftsText, { header: true }).data
+          .filter(r => r['Shift ID']);
+        const parsedBids = Papa.parse(bidsText, { header: true }).data
+          .filter(r => r.EmployeeID);
+
+        console.log('▶ parsedShifts:', parsedShifts);
+        console.log('▶ parsedBids:', parsedBids);
 
         setRawBids(parsedBids);
 
+        // count bids per shift
         const bidCounts = parsedBids.reduce((acc, b) => {
           acc[b.ShiftID] = (acc[b.ShiftID] || 0) + 1;
           return acc;
         }, {});
+        console.log('▶ bidCounts:', bidCounts);
 
+        // build our shift objects
         const merged = parsedShifts.map(r => {
           const [datePart, startTime] = r.Start.split(' ');
-          const endTime = r.End.split(' ')[1];
+          const endTime = (r.End || '').split(' ')[1] || '';
           return {
             id:        r['Shift ID'],
             date:      datePart,
@@ -65,12 +75,17 @@ export default function EmployeeShiftPreferences() {
           };
         });
 
+        console.log('▶ merged shifts:', merged);
+
+        // set our date window
         const dates = merged.map(s => s.date).sort();
-        setFrom(dates[0]);
-        setTo(dates[dates.length - 1]);
+        if (dates.length) {
+          setFrom(dates[0]);
+          setTo(dates[dates.length - 1]);
+        }
         setShifts(merged);
       } catch (err) {
-        console.error('CSV load error', err);
+        console.error(err);
       }
     }
     loadAll();
@@ -78,14 +93,14 @@ export default function EmployeeShiftPreferences() {
 
   const employeeList = [
     { id: 'ALL',   name: 'All Employees', org: null },
-    { id: 'E0001', name: 'John Doe',      org: 'Role A' },
-    { id: 'E0002', name: 'Alice Smith',   org: 'Role A' },
-    { id: 'E0003', name: 'Bob Johnson',   org: 'Role A' },
-    { id: 'E0004', name: 'Karen White',   org: 'Role A' },
-    { id: 'E0005', name: 'Mike Brown',    org: 'Role B' },
-    { id: 'E0006', name: 'Sara Green',    org: 'Role B' },
-    { id: 'E0007', name: 'Tom Black',     org: 'Role B' },
-    { id: 'E0008', name: 'Linda Blue',    org: 'Role B' }
+    { id: 'E0001', name: 'John Doe',      org: 'Role A'  },
+    { id: 'E0002', name: 'Alice Smith',   org: 'Role A'  },
+    { id: 'E0003', name: 'Bob Johnson',   org: 'Role A'  },
+    { id: 'E0004', name: 'Karen White',   org: 'Role A'  },
+    { id: 'E0005', name: 'Mike Brown',    org: 'Role B'  },
+    { id: 'E0006', name: 'Sara Green',    org: 'Role B'  },
+    { id: 'E0007', name: 'Tom Black',     org: 'Role B'  },
+    { id: 'E0008', name: 'Linda Blue',    org: 'Role B'  }
   ];
 
   const [mode, setMode]                         = useState('employee');
@@ -96,6 +111,7 @@ export default function EmployeeShiftPreferences() {
   const [sortDir, setSortDir] = useState('asc');
   const [prefs, setPrefs]     = useState({});
 
+  // load existing preferences
   useEffect(() => {
     const mapPref = { '1': '1st', '2': '2nd', '3': '3rd' };
     const bidsFor = mode === 'employee'
@@ -109,9 +125,10 @@ export default function EmployeeShiftPreferences() {
     setPrefs(initial);
   }, [rawBids, mode, selectedEmployee]);
 
+  // filter & sort
   const visibleShifts = useMemo(() => {
     return shifts
-      .filter(s => s.date >= from && s.date <= to)
+      .filter(s => (!from || s.date >= from) && (!to || s.date <= to))
       .filter(s => mode === 'manager'
         ? (selectedEmployee === 'ALL' || s.org === selectedOrg)
         : true
@@ -121,7 +138,7 @@ export default function EmployeeShiftPreferences() {
         if (sortBy === 'date')       cmp = a.date.localeCompare(b.date);
         else if (sortBy === 'start') cmp = a.start.localeCompare(b.start);
         else if (sortBy === 'position') cmp = a.position.localeCompare(b.position);
-        else if (sortBy === 'org')      cmp = a.org.localeCompare(b.org);
+        else if (sortBy === 'org')       cmp = a.org.localeCompare(b.org);
         else if (sortBy === 'totalBids') cmp = a.totalBids - b.totalBids;
         else cmp = ('' + a[sortBy]).localeCompare('' + b[sortBy]);
         return sortDir === 'asc' ? cmp : -cmp;
@@ -129,11 +146,8 @@ export default function EmployeeShiftPreferences() {
   }, [shifts, from, to, mode, selectedEmployee, selectedOrg, sortBy, sortDir]);
 
   const toggleSort = col => {
-    if (sortBy === col) setSortDir(d => (d === 'asc' ? 'desc' : 'asc'));
-    else {
-      setSortBy(col);
-      setSortDir('asc');
-    }
+    if (sortBy === col) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    else { setSortBy(col); setSortDir('asc'); }
   };
   const handlePref = (sid, v) => {
     setPrefs(prev => {
@@ -146,7 +160,8 @@ export default function EmployeeShiftPreferences() {
 
   return (
     <Layout title="Employee Preferences for Scheduling">
-      <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+      {/* Mode & (Manager) Picker */}
+      <Box sx={{ display:'flex', gap:2, mb:2, flexWrap:'wrap', alignItems:'center' }}>
         <FormControl size="small">
           <InputLabel>Mode</InputLabel>
           <Select value={mode} label="Mode" onChange={e => setMode(e.target.value)}>
@@ -179,82 +194,83 @@ export default function EmployeeShiftPreferences() {
         )}
       </Box>
 
-      <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+      {/* Date Range & Refresh */}
+      <Box sx={{ display:'flex', gap:2, mb:2 }}>
         <TextField
-          label="From" type="date" size="small"
-          value={from} onChange={e => setFrom(e.target.value)}
+          label="From"
+          type="date"
+          size="small"
+          value={from}
+          onChange={e => setFrom(e.target.value)}
           InputLabelProps={{ shrink: true }}
         />
         <TextField
-          label="To" type="date" size="small"
-          value={to} onChange={e => setTo(e.target.value)}
+          label="To"
+          type="date"
+          size="small"
+          value={to}
+          onChange={e => setTo(e.target.value)}
           InputLabelProps={{ shrink: true }}
         />
-        <Button variant="contained" onClick={() => { /* Refresh if needed */ }}>
+        <Button variant="contained" onClick={() => {/* optional refresh */}}>
           Refresh
         </Button>
       </Box>
 
+      {/* Shifts Table */}
       <Paper variant="outlined">
         <Table size="small">
           <TableHead>
-            <TableRow sx={{ background: '#F0F7FF' }}>
+            <TableRow sx={{ background:'#F0F7FF' }}>
               <TableCell onClick={() => toggleSort('id')}>Shift ID</TableCell>
               <TableCell onClick={() => toggleSort('date')}>
                 Date&nbsp;
-                {sortBy === 'date' && (sortDir === 'asc'
-                  ? <ArrowUpwardIcon fontSize="small" />
-                  : <ArrowDownwardIcon fontSize="small" />
-                )}
+                {sortBy==='date' && (sortDir==='asc'
+                  ? <ArrowUpwardIcon fontSize="small"/>
+                  : <ArrowDownwardIcon fontSize="small"/>)}
               </TableCell>
               <TableCell onClick={() => toggleSort('start')}>
                 Shift Time&nbsp;
-                {sortBy === 'start' && (sortDir === 'asc'
-                  ? <ArrowUpwardIcon fontSize="small" />
-                  : <ArrowDownwardIcon fontSize="small" />
-                )}
+                {sortBy==='start' && (sortDir==='asc'
+                  ? <ArrowUpwardIcon fontSize="small"/>
+                  : <ArrowDownwardIcon fontSize="small"/>)}
               </TableCell>
               <TableCell onClick={() => toggleSort('name')}>
                 Shift Name&nbsp;
-                {sortBy === 'name' && (sortDir === 'asc'
-                  ? <ArrowUpwardIcon fontSize="small" />
-                  : <ArrowDownwardIcon fontSize="small" />
-                )}
+                {sortBy==='name' && (sortDir==='asc'
+                  ? <ArrowUpwardIcon fontSize="small"/>
+                  : <ArrowDownwardIcon fontSize="small"/>)}
               </TableCell>
               <TableCell onClick={() => toggleSort('org')}>
                 Org&nbsp;
-                {sortBy === 'org' && (sortDir === 'asc'
-                  ? <ArrowUpwardIcon fontSize="small" />
-                  : <ArrowDownwardIcon fontSize="small" />
-                )}
+                {sortBy==='org' && (sortDir==='asc'
+                  ? <ArrowUpwardIcon fontSize="small"/>
+                  : <ArrowDownwardIcon fontSize="small"/>)}
               </TableCell>
               <TableCell onClick={() => toggleSort('position')}>
                 Position&nbsp;
-                {sortBy === 'position' && (sortDir === 'asc'
-                  ? <ArrowUpwardIcon fontSize="small" />
-                  : <ArrowDownwardIcon fontSize="small" />
-                )}
+                {sortBy==='position' && (sortDir==='asc'
+                  ? <ArrowUpwardIcon fontSize="small"/>
+                  : <ArrowDownwardIcon fontSize="small"/>)}
               </TableCell>
               <TableCell onClick={() => toggleSort('location')}>
                 Location&nbsp;
-                {sortBy === 'location' && (sortDir === 'asc'
-                  ? <ArrowUpwardIcon fontSize="small" />
-                  : <ArrowDownwardIcon fontSize="small" />
-                )}
+                {sortBy==='location' && (sortDir==='asc'
+                  ? <ArrowUpwardIcon fontSize="small"/>
+                  : <ArrowDownwardIcon fontSize="small"/>)}
               </TableCell>
               <TableCell onClick={() => toggleSort('totalBids')}>
                 Total Bids&nbsp;
-                {sortBy === 'totalBids' && (sortDir === 'asc'
-                  ? <ArrowUpwardIcon fontSize="small" />
-                  : <ArrowDownwardIcon fontSize="small" />
-                )}
+                {sortBy==='totalBids' && (sortDir==='asc'
+                  ? <ArrowUpwardIcon fontSize="small"/>
+                  : <ArrowDownwardIcon fontSize="small"/>)}
               </TableCell>
               <TableCell>Preference</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {visibleShifts.map(s => (
-              <TableRow key={s.id} sx={{ '&:hover': { background: '#EEF5FF' } }}>
+              <TableRow key={s.id} sx={{ '&:hover':{ background:'#EEF5FF' } }}>
                 <TableCell>{s.id}</TableCell>
                 <TableCell>{s.date}</TableCell>
                 <TableCell>{s.start}–{s.end}</TableCell>
@@ -266,10 +282,10 @@ export default function EmployeeShiftPreferences() {
                 <TableCell>
                   <FormControl size="small">
                     <Select
-                      value={prefs[s.id] || ''}
+                      value={prefs[s.id]||''}
                       displayEmpty
-                      onChange={e => handlePref(s.id, e.target.value)}
-                      disabled={mode === 'manager'}
+                      onChange={e=>handlePref(s.id,e.target.value)}
+                      disabled={mode==='manager'}
                     >
                       <MenuItem value=""><em>—</em></MenuItem>
                       <MenuItem value="1st">1st Choice</MenuItem>
@@ -284,12 +300,12 @@ export default function EmployeeShiftPreferences() {
         </Table>
       </Paper>
 
-      {mode === 'employee' && (
-        <Box sx={{ mt: 2 }}>
+      {mode==='employee' && (
+        <Box sx={{ mt:2 }}>
           <Button
             variant="contained"
-            onClick={() => console.log('Preferences:', prefs)}
-            disabled={!Object.values(prefs).some(v => v)}
+            onClick={()=>console.log('Preferences:',prefs)}
+            disabled={!Object.values(prefs).some(v=>v)}
           >
             Save Preferences
           </Button>
