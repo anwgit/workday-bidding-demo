@@ -32,8 +32,8 @@ export default function EmployeeShiftPreferences() {
     async function loadAll() {
       try {
         const PUB = process.env.PUBLIC_URL;
-        const shiftsText = await fetch(`${PUB}/Employee_Shifts.csv`).then(r => {
-          if (!r.ok) throw new Error(`Unable to load Employee_Shifts.csv (${r.status})`);
+        const shiftsText = await fetch(`${PUB}/Employee_shifts.csv`).then(r => {
+          if (!r.ok) throw new Error(`Unable to load Employee_shifts.csv (${r.status})`);
           return r.text();
         });
         const bidsText = await fetch(`${PUB}/employee_bids.csv`).then(r => {
