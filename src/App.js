@@ -11,6 +11,7 @@ import ShiftAward                     from './pages/ShiftAward';
 import BiddingDashboard               from './pages/BiddingDashboard';
 import ShiftBoard                     from './pages/ShiftBoard';
 import ManageBids                     from './pages/ManageBids';
+import Employees                      from './pages/Employees';
 import StaffingLevels                 from './pages/StaffingLevels';
 import RuleSetManager                 from './pages/RuleSetManager';
 import RuleSetsView                   from './pages/RuleSetsView';
@@ -27,6 +28,7 @@ export default function App() {
       <Route path="/"                           element={<BiddingDashboard />} />
       <Route path="/shift-board"                element={<ShiftBoard />} />
       <Route path="/manage"                     element={<ManageBids />} />
+      <Route path="/employees"                  element={<Employees />} />
       <Route path="/staffing-levels"            element={<StaffingLevels />} />
       <Route path="/rule-sets"                  element={<RuleSetManager />} />
       <Route path="/rule-sets-view"             element={<RuleSetsView />} />

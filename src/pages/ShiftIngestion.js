@@ -142,6 +142,10 @@ export default function ShiftIngestion() {
         <Button variant="contained" onClick={fetchShifts}>
           Refresh from Workday
         </Button>
+
+        <Button variant="contained" onClick={() => {/* TODO: implement Excel import */}}>
+          Import from Excel Sheet
+        </Button>
       </Box>
 
       {/* Shifts Grid */}

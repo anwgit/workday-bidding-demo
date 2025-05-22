@@ -1,23 +1,26 @@
 import React, { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
-  Box,
-  CssBaseline,
   AppBar,
   Toolbar,
   IconButton,
   Typography,
   Drawer,
   List,
+  ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Collapse,
-  Divider
+  Box,
+  Divider,
+  CssBaseline,
+  Collapse
 } from '@mui/material';
-import MenuIcon          from '@mui/icons-material/Menu';
+import MenuIcon from '@mui/icons-material/Menu';
+import HomeIcon from '@mui/icons-material/Home';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import GroupIcon from '@mui/icons-material/Group';
 import ChevronLeftIcon   from '@mui/icons-material/ChevronLeft';
-import HomeIcon          from '@mui/icons-material/Home';
 import DashboardIcon     from '@mui/icons-material/Dashboard';
 import GavelIcon         from '@mui/icons-material/Gavel';
 import LayersIcon        from '@mui/icons-material/Layers';
@@ -25,7 +28,6 @@ import SettingsIcon      from '@mui/icons-material/Settings';
 import ListAltIcon       from '@mui/icons-material/ListAlt';
 import AccessTimeIcon    from '@mui/icons-material/AccessTime';
 import ListIcon          from '@mui/icons-material/List';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import ExpandLess        from '@mui/icons-material/ExpandLess';
 import ExpandMore        from '@mui/icons-material/ExpandMore';
 
@@ -44,6 +46,7 @@ export default function Layout({ title, children }) {
     { text: 'Home',                   icon: <HomeIcon />,       path: '/' },
     { text: 'Shift Board',            icon: <DashboardIcon />,  path: '/shift-board' },
     { text: 'Manage Bids',            icon: <GavelIcon />,      path: '/manage' },
+    { text: 'Employees',       icon: <GroupIcon />,          path: '/employees' },
     { text: 'Staffing Levels',        icon: <LayersIcon />,     path: '/staffing-levels' },
     { text: 'Manage Rule Sets',       icon: <SettingsIcon />,   path: '/rule-sets' },
     { text: 'View Rule Sets',         icon: <ListAltIcon />,    path: '/rule-sets-view' },

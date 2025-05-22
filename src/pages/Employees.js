@@ -1,46 +1,76 @@
-import React from 'react';
-import {
-  Avatar, List, ListItem, ListItemAvatar,
-  ListItemText, Paper, Box, Typography
-} from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import Papa from 'papaparse';
 import Layout from '../components/Layout';
-
-const employees = [
-  { name: 'Alice Johnson', role: 'Firefighter' },
-  { name: 'Bob Smith',     role: 'Paramedic'  },
-  { name: 'Carol Lee',     role: 'Dispatcher' }
-];
-
-const avatarBg = ['#FFAB00','#36B37E','#6554C0'];
+import {
+  Paper,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  Typography,
+  Box,
+  CircularProgress
+} from '@mui/material';
 
 export default function Employees() {
+  const [employees, setEmployees] = useState(null);
+
+  useEffect(() => {
+    const url = `${process.env.PUBLIC_URL}/employees.csv`;
+    fetch(url)
+      .then(r => {
+        if (!r.ok) throw new Error(`Failed to load ${url} (${r.status})`);
+        return r.text();
+      })
+      .then(csv => {
+        const { data } = Papa.parse(csv, { header: true });
+        // filter out any blank rows
+        setEmployees(data.filter(r => r.EmployeeID));
+      })
+      .catch(err => {
+        console.error(err);
+        setEmployees([]);
+      });
+  }, []);
+
   return (
     <Layout title="Employees">
-      <Box sx={{ mb:2 }}>
-        <Typography variant="h6">Team Roster</Typography>
-      </Box>
-      <Paper>
-        <List>
-          {employees.map((emp, i) => (
-            <ListItem
-              key={emp.name}
-              sx={{
-                '&:hover': { background: '#F7F9FC' }
-              }}
-            >
-              <ListItemAvatar>
-                <Avatar sx={{ bgcolor: avatarBg[i % avatarBg.length] }}>
-                  {emp.name.charAt(0)}
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText
-                primary={emp.name}
-                secondary={emp.role}
-              />
-            </ListItem>
-          ))}
-        </List>
-      </Paper>
+      {!employees ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
+          <Typography variant="h6" gutterBottom>
+            All Employees
+          </Typography>
+          <Paper variant="outlined">
+            <Table size="small">
+              <TableHead>
+                <TableRow sx={{ background: '#F0F7FF' }}>
+                  <TableCell>Employee ID</TableCell>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Position</TableCell>
+                  <TableCell>Org</TableCell>
+                  <TableCell>Hire Date</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {employees.map(emp => (
+                  <TableRow key={emp.EmployeeID}>
+                    <TableCell>{emp.EmployeeID}</TableCell>
+                    <TableCell>{emp.Name}</TableCell>
+                    <TableCell>{emp.Position}</TableCell>
+                    <TableCell>{emp.Org}</TableCell>
+                    <TableCell>{emp.Hire || '—'}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Paper>
+        </>
+      )}
     </Layout>
   );
 }
