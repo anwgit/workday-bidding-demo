@@ -88,13 +88,20 @@ export default function ShiftIngestion() {
 
   // Stubbed fetch function; later connect to Extend REST endpoint
   const fetchShifts = async () => {
-    // Example when real endpoint is ready:
-    // const resp = await fetch(`/api/shifts?from=${from}&to=${to}&orgId=${orgId}`);
-    // const data = await resp.json();
-    // setShifts(data);
-
-    // For now, we keep the mock data
+    // TODO: replace with real API call
     setShifts(mockShifts);
+  };
+
+  // Stub: export current grid to CSV
+  const handleExport = () => {
+    // TODO: implement export logic
+    console.log('Exporting shifts to CSV', shifts);
+  };
+
+  // Stub: push data back to Workday
+  const handlePushToWorkday = () => {
+    // TODO: implement integration
+    console.log('Pushing shifts to Workday', shifts);
   };
 
   // Re-fetch when filters change
@@ -145,6 +152,14 @@ export default function ShiftIngestion() {
 
         <Button variant="contained" onClick={() => {/* TODO: implement Excel import */}}>
           Import from Excel Sheet
+        </Button>
+
+        <Button variant="contained" onClick={handleExport}>
+          Export
+        </Button>
+
+        <Button variant="contained" onClick={handlePushToWorkday}>
+          Push to Workday
         </Button>
       </Box>
 
