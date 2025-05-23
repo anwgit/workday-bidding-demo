@@ -1,15 +1,15 @@
-Shift ID,Shift Name,Start,End,Org,Worker,Position,Location
-100501,Night Watch,6/18/2025 20:00,6/19/2025 8:00,Police – West,Unassigned,Officer RN,Terminal B4
-100502,Day Patrol,6/19/2025 8:00,6/19/2025 16:00,Police – West,"Doe, John",Officer RN,Terminal B4
-100503,Event Coverage,6/21/2025 10:00,6/21/2025 18:00,Parking,"Smith, Alice",Parking Attd.,Parking Lot
-100504,Holiday Coverage,7/4/2025 0:00,7/4/2025 12:00,Security,Unassigned,Sec Officer,Main Gate
-100505,Morning Shift,7/1/2025 8:00,7/1/2025 16:00,Parking,Unassigned,Enforcement Officer 1,Terminal B4
-100506,Afternoon Shift,7/1/2025 12:00,7/1/2025 20:00,Parking,Unassigned,Enforcement Officer 2,Terminal B5
-100507,Night Shift,7/1/2025 20:00,7/2/2025 4:00,Parking,Unassigned,Enforcement Officer 3,Terminal B6
-100508,Morning Shift,7/2/2025 8:00,7/2/2025 16:00,Parking,Unassigned,Enforcement Officer 4,Terminal B4
-100509,Afternoon Shift,7/2/2025 12:00,7/2/2025 20:00,Parking,Unassigned,Enforcement Officer 5,Terminal B5
-100510,Night Shift,7/2/2025 20:00,7/3/2025 4:00,Parking,Unassigned,Enforcement Officer 6,Terminal B6
-100511,Day Shift,7/3/2025 8:00,7/3/2025 20:00,Fire,Unassigned,Fire Fighter,Control Room
-100512,Night Shift,7/3/2025 20:00,7/4/2025 8:00,Fire,Unassigned,Fire Fighter,Control Room
-100513,Day Shift,7/4/2025 8:00,7/4/2025 20:00,Fire,Unassigned,Captain,Dispatch Center
-100514,Night Shift,7/4/2025 20:00,7/5/2025 8:00,Fire,Unassigned,Captain,Dispatch Center
+Shift ID,Shift Name,Start,End,Org,Worker,Position,Location,Status
+100501,Night Watch,6/18/2025 20:00,6/19/2025 8:00,Police – West,Unassigned,Officer RN,Terminal B4,Open
+100502,Day Patrol,6/19/2025 8:00,6/19/2025 16:00,Police – West,"Doe, John",Officer RN,Terminal B4,Open
+100503,Event Coverage,6/21/2025 10:00,6/21/2025 18:00,Parking,"Smith, Alice",Parking Attd.,Parking Lot,Open
+100504,Holiday Coverage,7/4/2025 0:00,7/4/2025 12:00,Security,Unassigned,Sec Officer,Main Gate,Open
+100505,Morning Shift,7/1/2025 8:00,7/1/2025 16:00,Parking,Unassigned,Enforcement Officer 1,Terminal B4,Open
+100506,Afternoon Shift,7/1/2025 12:00,7/1/2025 20:00,Parking,Unassigned,Enforcement Officer 2,Terminal B5,Open
+100507,Night Shift,7/1/2025 20:00,7/2/2025 4:00,Parking,Unassigned,Enforcement Officer 3,Terminal B6,Open
+100508,Morning Shift,7/2/2025 8:00,7/2/2025 16:00,Parking,Unassigned,Enforcement Officer 4,Terminal B4,Open
+100509,Afternoon Shift,7/2/2025 12:00,7/2/2025 20:00,Parking,Unassigned,Enforcement Officer 5,Terminal B5,Open
+100510,Night Shift,7/2/2025 20:00,7/3/2025 4:00,Parking,Unassigned,Enforcement Officer 6,Terminal B6,Open
+100511,Day Shift,7/3/2025 8:00,7/3/2025 20:00,Fire,Unassigned,Fire Fighter,Control Room,Open
+100512,Night Shift,7/3/2025 20:00,7/4/2025 8:00,Fire,Unassigned,Fire Fighter,Control Room,Open
+100513,Day Shift,7/4/2025 8:00,7/4/2025 20:00,Fire,Unassigned,Captain,Dispatch Center,Open
+100514,Night Shift,7/4/2025 20:00,7/5/2025 8:00,Fire,Unassigned,Captain,Dispatch Center,Open
