@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/workday-bidding-demo/static/css/main.ff1b84b8.css",
-    "main.js": "/workday-bidding-demo/static/js/main.92f894e0.js",
+    "main.js": "/workday-bidding-demo/static/js/main.32ac7771.js",
     "index.html": "/workday-bidding-demo/index.html",
     "main.ff1b84b8.css.map": "/workday-bidding-demo/static/css/main.ff1b84b8.css.map",
-    "main.92f894e0.js.map": "/workday-bidding-demo/static/js/main.92f894e0.js.map"
+    "main.32ac7771.js.map": "/workday-bidding-demo/static/js/main.32ac7771.js.map"
   },
   "entrypoints": [
     "static/css/main.ff1b84b8.css",
-    "static/js/main.92f894e0.js"
+    "static/js/main.32ac7771.js"
   ]
 }
