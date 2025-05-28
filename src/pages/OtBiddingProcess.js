@@ -132,7 +132,7 @@ export default function OtBiddingProcess() {
   };
 
   return (
-    <Layout title="Overtime Bidding process">
+    <Layout title="Shift - Fill By Rules">
       <Box sx={{ display: 'flex', height: 'calc(100vh - 64px)', overflow: 'hidden' }}>
         {/* LEFT – 25% */}
         <Box sx={{
@@ -172,7 +172,7 @@ export default function OtBiddingProcess() {
         <Box sx={{ flexGrow: 1, pl: 2, overflowY: 'auto', px: 1, display: 'flex', flexDirection: 'column' }}>
           <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
             <FormControl size="small" sx={{ minWidth: 300 }}>
-              <InputLabel>Fill By Rules</InputLabel>
+              <InputLabel>Fill By Rules </InputLabel>
               <Select value={selRule} label="Fill By Rules" onChange={handleRuleChange}>
                 {ruleSets.map(rule => <MenuItem key={rule} value={rule}>{rule}</MenuItem>)}
               </Select>

@@ -33,7 +33,7 @@ import EditIcon  from '@mui/icons-material/Edit';
 
 export default function ShiftAward() {
   const [windowName, setWindowName] = useState('Cycle A');
-  const windows = ['Cycle A','Cycle B','Cycle C'];
+  const windows = ['Cycle A Shift Bidding - December','Cycle B','Cycle C'];
 
   const [employees, setEmployees] = useState([]);
   const [bids,      setBids]      = useState([]);

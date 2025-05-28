@@ -21,6 +21,7 @@ import VacationsBuckets               from './pages/VacationsBuckets';
 import VacationPreferenceSubmission   from './pages/VacationPreferenceSubmission';
 import VacationAwardAndOverride       from './pages/VacationAwardAndOverride';
 import VacationBidWindowConfig        from './pages/VacationBidWindowConfig';
+import OtBiddingProcess               from './pages/OtBiddingProcess';
 
 export default function App() {
   return (
@@ -33,6 +34,8 @@ export default function App() {
       <Route path="/rule-sets"                  element={<RuleSetManager />} />
       <Route path="/rule-sets-view"             element={<RuleSetsView />} />
       <Route path="/overtime-shifts-view"       element={<OvertimeShiftsView />} />
+      <Route path="/ot-bidding-process" element={<OtBiddingProcess />} />
+
 
       {/* Shift Bidding Module */}
       <Route path="/shift-ingestion"            element={<ShiftIngestion />} />

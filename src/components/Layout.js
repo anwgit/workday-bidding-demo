@@ -46,11 +46,13 @@ export default function Layout({ title, children }) {
     { text: 'Home',                   icon: <HomeIcon />,       path: '/' },
     { text: 'Shift Board',            icon: <DashboardIcon />,  path: '/shift-board' },
     { text: 'Manage Bids',            icon: <GavelIcon />,      path: '/manage' },
-    { text: 'Employees',       icon: <GroupIcon />,          path: '/employees' },
+    { text: 'Employees',              icon: <GroupIcon />,          path: '/employees' },
     { text: 'Staffing Levels',        icon: <LayersIcon />,     path: '/staffing-levels' },
     { text: 'Manage Rule Sets',       icon: <SettingsIcon />,   path: '/rule-sets' },
     { text: 'View Rule Sets',         icon: <ListAltIcon />,    path: '/rule-sets-view' },
-    { text: 'Overtime Shifts',        icon: <AccessTimeIcon />, path: '/overtime-shifts-view' }
+    { text: 'Overtime Shifts',        icon: <AccessTimeIcon />, path: '/overtime-shifts-view' },
+    { text: 'Fill By Rules Process',  icon: <AccessTimeIcon />, path: '/ot-bidding-process' }
+
   ];
 
   const vacationMenu = [
