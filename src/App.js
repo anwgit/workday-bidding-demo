@@ -10,6 +10,7 @@ import Employees                    from './pages/Employees';
 // Shift Bidding pages
 import ShiftIngestion               from './pages/ShiftIngestion';
 import ShiftBidWindows              from './pages/ShiftBidWindows';
+import ShiftBiddingDefineSchedules from './pages/ShiftBiddingDefineSchedules';
 import OpenShifts                   from './pages/OpenShifts';
 import EmployeeShiftPreferences     from './pages/EmployeeShiftPreferences';
 import ShiftBidding                 from './pages/ShiftBidding';
@@ -40,6 +41,8 @@ export default function App() {
       {/* Shift Bidding Module */}
       <Route path="/shift-ingestion"        element={<ShiftIngestion />} />
       <Route path="/shift-bid-windows"      element={<ShiftBidWindows />} />
+      <Route path="/shift-define-schedules" element={<ShiftBiddingDefineSchedules />} />
+
       <Route path="/open-shifts"            element={<OpenShifts />} />
       <Route path="/shift-preferences"      element={<EmployeeShiftPreferences />} />
       <Route path="/shift-bidding"          element={<ShiftBidding />} />

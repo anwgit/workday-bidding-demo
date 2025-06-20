@@ -56,6 +56,7 @@ export default function Layout({ title, children }) {
   const shiftMenu = [
     { text: 'Shift Ingestion',      icon: <ListIcon />, path: '/shift-ingestion' },
     { text: 'Bid Window Mgmt',      icon: <ListIcon />, path: '/shift-bid-windows' },
+    { text: 'Define Shift Schedules', icon: <ListIcon />, path: '/shift-define-schedules' },
     { text: 'Open Shifts',          icon: <ListIcon />, path: '/open-shifts' },
     { text: 'Employee Preferences', icon: <ListIcon />, path: '/shift-preferences' },
     { text: 'Execute Bidding',      icon: <ListIcon />, path: '/shift-bidding' },
