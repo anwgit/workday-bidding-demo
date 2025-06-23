@@ -127,7 +127,7 @@ export default function ShiftBiddingDefineSchedules() {
           </Select>
         </FormControl>
         <Button variant="contained" onClick={openNew}>
-          Create New Schedule
+          Add New Schedule
         </Button>
       </Box>
 
@@ -163,7 +163,7 @@ export default function ShiftBiddingDefineSchedules() {
 
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle>
-          {isEditing ? 'Edit Schedule' : 'Create New Schedule'}
+          {isEditing ? 'Edit Schedule' : 'Add New Schedule'}
         </DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
           <FormControl fullWidth>
