@@ -1,158 +1,305 @@
-// src/pages/ShiftBiddingDefineSchedules.js
-import React, { useState } from 'react';
+// src/pages/ShiftAward.js
+import React, { useState, useEffect } from 'react';
+import Papa from 'papaparse';
 import Layout from '../components/Layout';
 import {
   Box,
-  Paper,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
   Button,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
+  Paper,
   Table,
   TableHead,
   TableRow,
   TableCell,
   TableBody,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
+  Typography,
+  CircularProgress,
+  IconButton,
+  Link,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  List,
+  ListItem,
+  ListItemText
 } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import CheckIcon from '@mui/icons-material/Check';
+import ClearIcon from '@mui/icons-material/Clear';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import EditIcon  from '@mui/icons-material/Edit';
 
-const orgOptions = ['Police', 'Fire', 'Parking', 'IOC'];
+export default function ShiftAward() {
+  const [windowName, setWindowName] = useState('Cycle A');
+  const windows = ['Cycle A Shift Bidding - December','Cycle B','Cycle C'];
 
-// Pre-populated schedule names for the list box
-const scheduleNames = [
-  'Police Night-Mo 8hr - 10p - 6a/Tu/Su/Mo/Tu/Sa/Su-12 hour Shift 6p-6a',
-  'Police Night-Mo 8hr - 8p - 4a/Tu/Su/Mo/Tu/Sa/Su-12 hour Shift 4p-4a',
-  'Police Day-Mo/Tu 8hr - 6a - 2p/Su/Mo/Tu/We/Su-12 hour Shift 6a-6p',
-  'Police Day-Mo 8hr 4p - 12a/Tu/Su/Mo/Tu/We/Su-12 hour Shift 4a-4p',
-  '4/10  - 10Hour - SUN/MON/TUE/WED - Shift -10A-10P',
-  '4/10-ROTATE-Mo/Tu/We/Su-10 Hour Shift-4:30AM-3:00PM + 1:00PM-11:30PM',
-  '5/8- 8- Hour - mo/tu/we/th/fr - 8 Hour Shift 7:00am - 3:00pm',
-  '4/10-Th/Fr/Sa/Su-10 Hour Shift-9:00AM-7:30PM',
-  '5/8 -8Hour -Mo/Th/Fr/Sa/Su-8 Hour Shift-2:00PM-10:30PM',
-];
+  const [employees, setEmployees] = useState([]);
+  const [bids, setBids] = useState([]);
+  const [monitor, setMonitor] = useState([]);
+  const [records, setRecords] = useState(null);
+  const [autoAwarded, setAutoAwarded] = useState(false);
 
-const initialBuckets = [
-  {
-    id: 1,
-    name: scheduleNames[0],
-    MinStaffLevel: 10,
-    description: 'Regular Day Schedule for 9-5 shifts.',
-  },
-  {
-    id: 2,
-    name: scheduleNames[1],
-    MinStaffLevel: 5,
-    description: 'Year-end holiday period.',
-  }
-];
+  // filter state
+  const [orgFilter, setOrgFilter] = useState('');
+  const [orgOptions, setOrgOptions] = useState([]);
 
-const initialCurrent = {
-  id: null,
-  name: '',
-  MinStaffLevel: '',
-  description: ''
-};
+  // dialog state
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState('');
+  const [dialogReason, setDialogReason] = useState([]);
 
-export default function ShiftBiddingDefineSchedules() {
-  const [buckets, setBuckets] = useState(initialBuckets);
-  const [open, setOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [current, setCurrent] = useState(initialCurrent);
-  const [selectedOrg, setSelectedOrg] = useState(orgOptions[0]);
+  // Load CSVs on mount
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const PUB = process.env.PUBLIC_URL;
+        const [empText, bidText, monText] = await Promise.all([
+          fetch(`${PUB}/employees.csv`).then(r => r.text()),
+          fetch(`${PUB}/employee_bids.csv`).then(r => r.text()),
+          fetch(`${PUB}/shift_monitor.csv`).then(r => r.text()),
+        ]);
+        const emps = Papa.parse(empText, { header: true })
+                       .data.filter(r => r.EmployeeID);
+        const bds  = Papa.parse(bidText, { header: true })
+                       .data.filter(r => r.EmployeeID && r.ShiftID);
+        const mon  = Papa.parse(monText, { header: true })
+                       .data.filter(r => r.ScheduleID);
 
-  const openNew = () => {
-    setIsEditing(false);
-    setCurrent(initialCurrent);
-    setOpen(true);
-  };
+        setEmployees(emps);
+        setBids(bds);
+        setMonitor(mon);
 
-  const openEdit = (bucket) => {
-    setIsEditing(true);
-    setCurrent({ ...bucket });
-    setOpen(true);
-  };
+        // build org options from data
+        const orgSet = new Set();
+        bds.forEach(b => {
+          const emp = emps.find(e => e.EmployeeID === b.EmployeeID);
+          if (emp?.Org) orgSet.add(emp.Org);
+        });
+        setOrgOptions(Array.from(orgSet));
 
-  const handleDelete = (id) => {
-    setBuckets(buckets.filter(b => b.id !== id));
-  };
+        // default to first org for filter
+        const initialOrg = Array.from(orgSet)[0] || '';
+        setOrgFilter(initialOrg);
 
-  const handleChange = (field) => (e) => {
-    setCurrent({ ...current, [field]: e.target.value });
-  };
+        // Join: use ShiftID from bids to lookup ScheduleID in shift_monitor.csv
+        const joined = bds.map(b => {
+          const emp = emps.find(e => e.EmployeeID === b.EmployeeID) || {};
+          const monitorRec = mon.find(m => m.ScheduleID === b.ShiftID) || {};
+          return {
+            employee: b.EmployeeID + (emp.Name ? `-${emp.Name}` : ''),
+            position: emp.Position || '',
+            org: emp.Org || '',
+            seniority: emp.Hire || '',
+            schedule: monitorRec.ScheduleID
+              ? `${monitorRec.ScheduleID} ${monitorRec['Schedule Name'] || ''}`.trim()
+              : b.ShiftID,
+            minStaffLevel: monitorRec.MinStaffLevel ? Number(monitorRec.MinStaffLevel) : '',
+            preference: b.Preference,
+            submitted: b.Submitted || '',
+            awarded: false,
+            reason: [],
+            employeeID: b.EmployeeID,
+            shiftID: b.ShiftID,
+          };
+        });
 
-  const handleSave = () => {
-    // Ensure MinStaffLevel is a number
-    const newCurrent = {
-      ...current,
-      MinStaffLevel: Number(current.MinStaffLevel),
-    };
-
-    if (isEditing) {
-      setBuckets(buckets.map(b => (b.id === current.id ? newCurrent : b)));
-    } else {
-      const nextId = Math.max(0, ...buckets.map(b => b.id)) + 1;
-      setBuckets([...buckets, { ...newCurrent, id: nextId }]);
+        setRecords(joined);
+      } catch (err) {
+        console.error(err);
+        setRecords([]);
+      }
     }
-    setOpen(false);
+    loadData();
+  }, []);
+
+  // Auto‐award logic (unchanged)
+  const handleAutoAward = () => {
+    if (!records) return;
+    const bySchedule = records.reduce((acc, r) => {
+      (acc[r.schedule] = acc[r.schedule] || []).push(r);
+      return acc;
+    }, {});
+    const updated = [];
+
+    Object.values(bySchedule).forEach(group => {
+      let winner = null;
+      let reason = [];
+
+      if (group.length === 1) {
+        winner = group[0];
+        reason.push('Only one bid → auto-awarded.');
+      } else {
+        for (let p = 1; p <= 3; p++) {
+          const cands = group.filter(r => Number(r.preference) === p);
+          reason.push(`Preference ${p}: ${cands.length} candidate(s).`);
+          if (!cands.length) continue;
+          if (cands.length === 1) {
+            winner = cands[0];
+            reason.push('Single candidate → awarded.');
+          } else {
+            reason.push('Tie → breaking by seniority.');
+            const tie = cands.map(r => ({
+              ...r,
+              _hire: new Date(r.seniority)
+            }));
+            tie.sort((a, b) => a._hire - b._hire);
+            winner = tie[0];
+            reason.push(`Winner: ${winner.employee} (Hired ${winner.seniority}).`);
+          }
+          break;
+        }
+      }
+
+      group.forEach(r => {
+        if (winner && r.employeeID === winner.employeeID) {
+          r.awarded = true;
+          r.reason = reason;
+        } else {
+          r.awarded = false;
+          r.reason = reason.length
+            ? ['Not selected at winning preference.']
+            : [];
+        }
+        updated.push(r);
+      });
+    });
+
+    setRecords(updated);
+    setAutoAwarded(true);
   };
+
+  // Toggle awarded on/off
+  const handleToggle = (id, sid) => {
+    setRecords(prev =>
+      prev.map(r =>
+        r.employeeID === id && r.shiftID === sid
+          ? { ...r, awarded: !r.awarded }
+          : r
+      )
+    );
+  };
+
+  // Show reasoning dialog
+  const showReason = r => {
+    setDialogTitle(`${r.employee} – Schedule ${r.schedule}`);
+    setDialogReason(r.reason);
+    setDialogOpen(true);
+  };
+
+  if (records === null) {
+    return (
+      <Layout title="Award & Override">
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <CircularProgress />
+        </Box>
+      </Layout>
+    );
+  }
+
+  // Filter records by Supervisory Org
+  const filteredRecords = orgFilter
+    ? records.filter(r => r.org === orgFilter)
+    : records;
+
+  // Capacity: sum of MinStaffLevel for visible rows
+  const capacity = filteredRecords.reduce((sum, r) => sum + (Number(r.minStaffLevel) || 0), 0);
+  const submittedCount = filteredRecords.length;
+  const awardedCount = filteredRecords.filter(r => r.awarded).length;
 
   return (
-    <Layout title="Define Shift Schedules for Shift Bidding">
-      <Box sx={{
-        mb: 2,
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
-        <FormControl sx={{ minWidth: 220 }}>
-          <InputLabel id="org-select-label">Supervisory Organization</InputLabel>
+    <Layout title="Award & Override">
+      {/* Header */}
+      <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 3, flexWrap: 'wrap' }}>
+        <FormControl size="small">
+          <InputLabel>Window</InputLabel>
           <Select
-            labelId="org-select-label"
-            id="org-select"
-            value={selectedOrg}
+            value={windowName}
+            label="Window"
+            onChange={e => setWindowName(e.target.value)}
+          >
+            {windows.map(w => (
+              <MenuItem key={w} value={w}>{w}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        {/* Supervisory Org Listbox */}
+        <FormControl size="small" sx={{ minWidth: 200 }}>
+          <InputLabel>Supervisory Organization</InputLabel>
+          <Select
+            value={orgFilter || ''}
             label="Supervisory Organization"
-            onChange={e => setSelectedOrg(e.target.value)}
+            onChange={e => setOrgFilter(e.target.value)}
           >
             {orgOptions.map(org => (
               <MenuItem key={org} value={org}>{org}</MenuItem>
             ))}
           </Select>
         </FormControl>
-        <Button variant="contained" onClick={openNew}>
-          Add New Schedule
+
+        <Typography>
+          Capacity: {capacity} | Submitted: {submittedCount} | Awarded: {awardedCount}
+        </Typography>
+
+        <Button variant="contained" onClick={handleAutoAward}>
+          AUTO AWARD
         </Button>
       </Box>
 
+      {/* Table */}
       <Paper variant="outlined">
         <Table size="small">
           <TableHead>
             <TableRow sx={{ background: '#F0F7FF' }}>
-              <TableCell>Schedule Name</TableCell>
-              <TableCell align="center">Min Staff Level</TableCell>
-              <TableCell>Description</TableCell>
-              <TableCell align="center">Actions</TableCell>
+              <TableCell>Employee</TableCell>
+              <TableCell>Position</TableCell>
+              <TableCell>Seniority</TableCell>
+              <TableCell>Schedule</TableCell>
+              <TableCell>MinStaffLevel</TableCell>
+              <TableCell>Preference</TableCell>
+              <TableCell>Submitted</TableCell>
+              <TableCell>Awarded</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {buckets.map(bucket => (
-              <TableRow key={bucket.id} sx={{ '&:hover': { background: '#EEF5FF' } }}>
-                <TableCell>{bucket.name}</TableCell>
-                <TableCell align="center">{bucket.MinStaffLevel}</TableCell>
-                <TableCell>{bucket.description}</TableCell>
-                <TableCell align="center">
-                  <IconButton size="small" onClick={() => openEdit(bucket)}>
-                    <EditIcon fontSize="small" />
-                  </IconButton>
-                  <IconButton size="small" onClick={() => handleDelete(bucket.id)}>
-                    <DeleteIcon fontSize="small" />
+            {filteredRecords.map(r => (
+              <TableRow key={`${r.employeeID}-${r.shiftID}`}>
+                <TableCell>{r.employee}</TableCell>
+                <TableCell>{r.position}</TableCell>
+                <TableCell>{r.seniority}</TableCell>
+                <TableCell>{r.schedule}</TableCell>
+                <TableCell>{r.minStaffLevel}</TableCell>
+                <TableCell>{r.preference}</TableCell>
+                <TableCell>{r.submitted}</TableCell>
+                <TableCell>
+                  {autoAwarded
+                    ? r.awarded
+                      ? <CheckIcon color="success" fontSize="small" />
+                      : <ClearIcon color="error" fontSize="small" />
+                    : null
+                  }
+                </TableCell>
+                <TableCell>
+                  <Link
+                    component="button"
+                    variant="body2"
+                    onClick={() => handleToggle(r.employeeID, r.shiftID)}
+                  >
+                    REVOKE
+                  </Link>{' '}
+                  {autoAwarded && (
+                    <IconButton size="small" onClick={() => showReason(r)}>
+                      <InfoOutlinedIcon />
+                    </IconButton>
+                  )}{' '}
+                  <IconButton
+                    size="small"
+                    onClick={() => alert(`Override ${r.employeeID}-${r.shiftID}`)}
+                  >
+                    <EditIcon />
                   </IconButton>
                 </TableCell>
               </TableRow>
@@ -161,47 +308,23 @@ export default function ShiftBiddingDefineSchedules() {
         </Table>
       </Paper>
 
-      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          {isEditing ? 'Edit Schedule' : 'Add New Schedule'}
-        </DialogTitle>
-        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-          <FormControl fullWidth>
-            <InputLabel id="schedule-name-label">Schedule Name</InputLabel>
-            <Select
-              labelId="schedule-name-label"
-              id="schedule-name"
-              value={current.name}
-              label="Schedule Name"
-              onChange={handleChange('name')}
-            >
-              {scheduleNames.map((schedule, idx) => (
-                <MenuItem key={idx} value={schedule}>{schedule}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <TextField
-            label="Min Staff Level"
-            type="number"
-            value={current.MinStaffLevel}
-            onChange={handleChange('MinStaffLevel')}
-            fullWidth
-          />
-          <TextField
-            label="Description"
-            value={current.description}
-            onChange={handleChange('description')}
-            multiline
-            rows={3}
-            fullWidth
-          />
+      {/* Reason Dialog */}
+      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+        <DialogTitle>{dialogTitle}</DialogTitle>
+        <DialogContent>
+          <List>
+            {dialogReason.map((line, i) => (
+              <ListItem key={i} disablePadding>
+                <ListItemText primary={`• ${line}`} />
+              </ListItem>
+            ))}
+            {dialogReason.length === 0 && (
+              <ListItem disablePadding>
+                <ListItemText primary="No decision logic available." />
+              </ListItem>
+            )}
+          </List>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSave}>
-            {isEditing ? 'Save Changes' : 'Create'}
-          </Button>
-        </DialogActions>
       </Dialog>
     </Layout>
   );
