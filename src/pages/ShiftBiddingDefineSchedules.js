@@ -39,17 +39,24 @@ const scheduleNames = [
   '5/8 -8Hour -Mo/Th/Fr/Sa/Su-8 Hour Shift-2:00PM-10:30PM',
 ];
 
+const roleOptions = ['Officer', 'Captain', 'Sergeant', 'Lieutenant'];
+const locationOptions = ['Terminal4', 'Terminal5', 'Terminal6', 'Terminal7'];
+
 const initialBuckets = [
   {
     id: 1,
     name: scheduleNames[0],
     MinStaffLevel: 10,
+    role: 'Officer',
+    location: 'Terminal4',
     description: 'Regular Day Schedule for 9-5 shifts.',
   },
   {
     id: 2,
     name: scheduleNames[1],
     MinStaffLevel: 5,
+    role: 'Captain',
+    location: 'Terminal5',
     description: 'Year-end holiday period.',
   }
 ];
@@ -58,6 +65,8 @@ const initialCurrent = {
   id: null,
   name: '',
   MinStaffLevel: '',
+  role: '',
+  location: '',
   description: ''
 };
 
@@ -89,7 +98,6 @@ export default function ShiftBiddingDefineSchedules() {
   };
 
   const handleSave = () => {
-    // Ensure MinStaffLevel is a number
     const newCurrent = {
       ...current,
       MinStaffLevel: Number(current.MinStaffLevel),
@@ -137,6 +145,8 @@ export default function ShiftBiddingDefineSchedules() {
             <TableRow sx={{ background: '#F0F7FF' }}>
               <TableCell>Schedule Name</TableCell>
               <TableCell align="center">Min Staff Level</TableCell>
+              <TableCell align="center">Role</TableCell>
+              <TableCell align="center">Location</TableCell>
               <TableCell>Description</TableCell>
               <TableCell align="center">Actions</TableCell>
             </TableRow>
@@ -146,6 +156,8 @@ export default function ShiftBiddingDefineSchedules() {
               <TableRow key={bucket.id} sx={{ '&:hover': { background: '#EEF5FF' } }}>
                 <TableCell>{bucket.name}</TableCell>
                 <TableCell align="center">{bucket.MinStaffLevel}</TableCell>
+                <TableCell align="center">{bucket.role}</TableCell>
+                <TableCell align="center">{bucket.location}</TableCell>
                 <TableCell>{bucket.description}</TableCell>
                 <TableCell align="center">
                   <IconButton size="small" onClick={() => openEdit(bucket)}>
@@ -187,6 +199,34 @@ export default function ShiftBiddingDefineSchedules() {
             onChange={handleChange('MinStaffLevel')}
             fullWidth
           />
+          <FormControl fullWidth>
+            <InputLabel id="role-label">Role</InputLabel>
+            <Select
+              labelId="role-label"
+              id="role"
+              value={current.role}
+              label="Role"
+              onChange={handleChange('role')}
+            >
+              {roleOptions.map((role, idx) => (
+                <MenuItem key={idx} value={role}>{role}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl fullWidth>
+            <InputLabel id="location-label">Location</InputLabel>
+            <Select
+              labelId="location-label"
+              id="location"
+              value={current.location}
+              label="Location"
+              onChange={handleChange('location')}
+            >
+              {locationOptions.map((loc, idx) => (
+                <MenuItem key={idx} value={loc}>{loc}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <TextField
             label="Description"
             value={current.description}
