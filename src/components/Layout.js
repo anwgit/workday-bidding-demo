@@ -79,7 +79,8 @@ export default function Layout({ title, children }) {
     { text: 'Bucket Definitions',     icon: <CalendarTodayIcon />, path: '/vacations-buckets' },
     { text: 'Preference Submissions', icon: <CalendarTodayIcon />, path: '/vacation-preference-submission' },
     { text: 'Award & Override',       icon: <CalendarTodayIcon />, path: '/vacation-award-override' },
-    { text: 'Window Config',          icon: <CalendarTodayIcon />, path: '/vacation-window-config' }
+    { text: 'Window Config',          icon: <CalendarTodayIcon />, path: '/vacation-window-config' },
+    { text: 'Admin Config',           icon: <CalendarTodayIcon />, path: '/vacation-config' }
   ];
 
   return (

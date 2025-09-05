@@ -30,6 +30,8 @@ import VacationsBuckets             from './pages/VacationsBuckets';
 import VacationPreferenceSubmission from './pages/VacationPreferenceSubmission';
 import VacationAwardAndOverride     from './pages/VacationAwardAndOverride';
 import VacationBidWindowConfig      from './pages/VacationBidWindowConfig';
+import VacationConfig               from './pages/VacationConfig';
+
 
 export default function App() {
   return (
@@ -77,6 +79,11 @@ export default function App() {
         path="/vacation-window-config"
         element={<VacationBidWindowConfig />}
       />
+      <Route
+        path="/vacation-config"
+        element={<VacationConfig />}
+      />
+
 
       {/* catch-all */}
       <Route path="*" element={<Navigate to="/" replace />} />
